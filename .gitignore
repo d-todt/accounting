@@ -1,0 +1,8 @@
+# ausgeschlossene Dateien
+
+# ausgeschlossene Verzeichnisse (mit / beenden)
+
+# Dateien, die durch ein Muster (*, &) identifiziert werden
+*.class
+# Dateien, die entgegen dem Muster eingeschlossen werden
+# (durch ! gekennzeichnet)

@@ -80,7 +80,7 @@ public class ArgParser {
 
     } // end of method "parseArgs()"
 
-
+    /** hier wird die toString-Methode ueberschrieben */
     @Override
     public String toString() {
 

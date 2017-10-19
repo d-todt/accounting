@@ -15,7 +15,7 @@ public class ArgParser {
         
     } // end of special constructor "ArgParser(String[])"
 
-
+    /** Funktion zum Parsen von Argumenten */
     private void parseArgs() {
 
         StringBuffer sb = null;

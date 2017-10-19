@@ -20,5 +20,13 @@
     <delete dir="build"/>
     <delete dir="dist"/>
   </target>
+  
+  <target name="execute" depends="compile">
+      <java classpath="build/classes" classname="application.accounting.Accounting"/>
+  </target>
+  
+  <target name="execute-jar" depends="archive">
+      <java classpath="dist/accounting.jar" classname="application.accounting.Accounting"/>
+  </target>
 
 </project>

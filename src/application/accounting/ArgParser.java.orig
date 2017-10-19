@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 package application.accounting;
+=======
 /**
     Diese Klasse dient dem Parsen von Argumenten
 */
+>>>>>>> 4623f31156427b34ad28708f66fefb4de209d8c8
 
 public class ArgParser {
 

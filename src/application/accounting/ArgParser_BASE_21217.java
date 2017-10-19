@@ -1,8 +1,3 @@
-package application.accounting;
-/**
-    Diese Klasse dient dem Parsen von Argumenten
-*/
-
 public class ArgParser {
 
     private String[] args = null;

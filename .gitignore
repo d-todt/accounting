@@ -1,5 +1,5 @@
 # ausgeschlossene Dateien
-
+src/data/test.csv.new
 # ausgeschlossene Verzeichnisse (mit / beenden)
 
 # Dateien, die durch ein Muster (*, &) identifiziert werden

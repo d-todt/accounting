@@ -25,6 +25,11 @@
       <java classpath="build/classes" classname="application.accounting.Accounting"/>
   </target>
   
+  <target name="execute-input" depends="compile">
+      <java classpath="build/classes" classname="application.accounting.Accounting"
+            input="./accounting.in"/>
+  </target>
+  
   <target name="execute-jar" depends="archive">
       <java classpath="dist/accounting.jar" classname="application.accounting.Accounting"/>
   </target>

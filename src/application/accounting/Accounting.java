@@ -3,7 +3,16 @@ package application.accounting;
 import java.util.*;
 import java.io.*;
 
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 public class Accounting {
+    /** Logger */
+    private static final Logger logger = Logger.getLogger(Accounting.class.getName());
+
     /** wandelt einen Betrag im Stringformat in den entsprechenden Long um */
     public static long parseBetrag(String betr) {
         return (long) (Double.parseDouble(betr.replace(",", "."))*100*1000);
@@ -15,10 +24,12 @@ public class Accounting {
         
         // Datei einlesen
         try (BufferedReader br = new BufferedReader(new FileReader(dateiname))) {
+            logger.info("Lese von Datei " + dateiname);
             // Parsen
             String zeile;
             while ((zeile = br.readLine()) != null) {
                 zeile = zeile.trim();
+                logger.info("Gelesene Zeile: " + zeile);
                 if (zeile.length() == 0 || zeile.charAt(0) == '#') {
                     System.out.println(zeile);
                     continue;
@@ -32,7 +43,7 @@ public class Accounting {
                 erg.add(tmp);
             }
         } catch (IOException e) {
-            System.out.println("Ein-/Ausgabefehler (Datei " + dateiname + ")");
+            logger.warning("Ein-/Ausgabefehler (Datei " + dateiname + ")");
             throw e;
         }
         
@@ -41,7 +52,7 @@ public class Accounting {
 
     public static void main(String args[]) throws IOException {
         // ArgParser
-        String dateiname, ausgabedateiname = "";
+        String dateiname, ausgabedateiname = "", log = "";
         double zinssatz;
         if (args.length == 0) {
             // Dateinamen und Zinssatz einlesen
@@ -51,16 +62,39 @@ public class Accounting {
             sc.close();
         } else {
             ArgParser ap = new ArgParser(args);
+            log = ap.getLogFilename();
             dateiname = ap.getInputFilename();
             ausgabedateiname = ap.getOutputFilename();
             zinssatz = Double.parseDouble(ap.getNonOptions());
         }
         
+        // Logger wird aktiviert
+        try {
+            boolean append = true;
+            FileHandler fh = new FileHandler(log, append);
+            fh.setFormatter(new Formatter() {
+                public String format(LogRecord rec) {
+                    StringBuffer buf = new StringBuffer(1000);
+                    buf.append(new java.util.Date()).append(' ');
+                    buf.append(rec.getLevel()).append(' ');
+                    buf.append(formatMessage(rec)).append('\n');
+                    return buf.toString();
+                }
+            });
+            logger.addHandler(fh);
+            logger.setLevel(Level.ALL);
+        } catch (IOException e) {
+            logger.severe("Datei kann nicht geschrieben werden");
+            e.printStackTrace();
+        }
+        
         // Daten einlesen
         if (ausgabedateiname.length() > 0) {
             System.setOut(new PrintStream(new FileOutputStream(ausgabedateiname)));
+            logger.info("Lenke Ausgabe in Datei " + ausgabedateiname + " um");
         }
         Depositor.setzeZinsen(zinssatz);
+        logger.info("Setze Zinssatz auf " + zinssatz);
         List<Depositor> leute = liesDatei(dateiname);
         for (Depositor mensch : leute) {
             System.out.printf("%s;%s;%s;%s\n", mensch.getNummer(), mensch.getNachname(), mensch.getVorname(), (mensch.berechneGuthaben()+"").replace(".", ","));

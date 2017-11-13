@@ -17,8 +17,8 @@ public class Accounting {
     private static final Logger logger = Logger.getLogger(Accounting.class.getName());
     
     /** Resource Bundle */
-    private String baseName = "Accounting";
-    ResourceBundle rb = ResourceBundle.getBundle(baseName);
+    private static String baseName = "Accounting";
+    private static ResourceBundle rb = ResourceBundle.getBundle(baseName);
 
     /** wandelt einen Betrag im Stringformat in den entsprechenden Long um */
     public static long parseBetrag(String betr) {
@@ -97,7 +97,7 @@ public class Accounting {
         }
         
         // Daten einlesen
-        if (ausgabedateiname.length() > 0) {
+        if (ausgabedateiname != null && ausgabedateiname.length() > 0) {
             System.setOut(new PrintStream(new FileOutputStream(ausgabedateiname)));
             logger.info("Lenke Ausgabe in Datei " + ausgabedateiname + " um");
         }

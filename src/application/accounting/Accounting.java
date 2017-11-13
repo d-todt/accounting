@@ -8,10 +8,17 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 public class Accounting {
     /** Logger */
     private static final Logger logger = Logger.getLogger(Accounting.class.getName());
+    
+    /** Resource Bundle */
+    private String baseName = "Accounting";
+    ResourceBundle rb = ResourceBundle.getBundle(baseName);
 
     /** wandelt einen Betrag im Stringformat in den entsprechenden Long um */
     public static long parseBetrag(String betr) {
@@ -24,7 +31,8 @@ public class Accounting {
         
         // Datei einlesen
         try (BufferedReader br = new BufferedReader(new FileReader(dateiname))) {
-            logger.info("Lese von Datei " + dateiname);
+            String readinput_msg = rb.getString("readinput_msg");
+            logger.info(readinput_msg + ": " + dateiname);
             // Parsen
             String zeile;
             while ((zeile = br.readLine()) != null) {

@@ -11,6 +11,9 @@ import java.util.logging.Level;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 public class Accounting {
     /** Logger */
@@ -59,6 +62,17 @@ public class Accounting {
     }
 
     public static void main(String args[]) throws IOException {
+        // Nochmal Resource Bundle?
+        File file = new File("./dist/data/lang/");
+        rb = null;
+        try {
+            URL[] urls = {file.toURI().toURL()};
+            ClassLoader loader = new URLClassLoader(urls);
+            rb = ResourceBundle.getBundle(baseName, Locale.getDefault(), loader);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    
         // ArgParser
         String dateiname, ausgabedateiname = "", log = "";
         double zinssatz;
@@ -77,23 +91,25 @@ public class Accounting {
         }
         
         // Logger wird aktiviert
-        try {
-            boolean append = true;
-            FileHandler fh = new FileHandler(log, append);
-            fh.setFormatter(new Formatter() {
-                public String format(LogRecord rec) {
-                    StringBuffer buf = new StringBuffer(1000);
-                    buf.append(new java.util.Date()).append(' ');
-                    buf.append(rec.getLevel()).append(' ');
-                    buf.append(formatMessage(rec)).append('\n');
-                    return buf.toString();
-                }
-            });
-            logger.addHandler(fh);
-            logger.setLevel(Level.ALL);
-        } catch (IOException e) {
-            logger.severe("Datei kann nicht geschrieben werden");
-            e.printStackTrace();
+        if (log != null && log.length() > 0) {
+            try {
+                boolean append = true;
+                FileHandler fh = new FileHandler(log, append);
+                fh.setFormatter(new Formatter() {
+                    public String format(LogRecord rec) {
+                        StringBuffer buf = new StringBuffer(1000);
+                        buf.append(new java.util.Date()).append(' ');
+                        buf.append(rec.getLevel()).append(' ');
+                        buf.append(formatMessage(rec)).append('\n');
+                        return buf.toString();
+                    }
+                });
+                logger.addHandler(fh);
+                logger.setLevel(Level.ALL);
+            } catch (IOException e) {
+                logger.severe("Datei kann nicht geschrieben werden");
+                e.printStackTrace();
+            }
         }
         
         // Daten einlesen

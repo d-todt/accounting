@@ -5,6 +5,7 @@
   <property name="build" value="./build/classes"/>
   <property name="dist" value="./dist"/>
     
+  <!-- Klassenpfad -->
   <path id="project.class.path">
     <pathelement path="${build}"/>
     <pathelement path="${dist}/data/lang"/>

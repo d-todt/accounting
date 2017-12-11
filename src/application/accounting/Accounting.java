@@ -4,6 +4,8 @@ import java.util.*;
 import java.io.*;
 
 public class Accounting {
+    public String applicationVersion = "Id: <FILE>, version <COMMITHASHABBREVIATED> of <COMMITTERDATEISO08601> by <AUTHORNAME>";
+
     /** wandelt einen Betrag im Stringformat in den entsprechenden Long um */
     public static long parseBetrag(String betr) {
         return (long) (Double.parseDouble(betr.replace(",", "."))*100*1000);

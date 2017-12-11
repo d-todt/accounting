@@ -2,36 +2,208 @@
 
 <project name="accounting" default="archive">
 
-  <target name="init">
+  <property name="build" value="./build/classes"/>
+  <property name="dist" value="./dist"/>
+    
+  <!-- Klassenpfad -->
+  
+  <path id="project.class.path">
+    <pathelement path="${build}"/>
+    <pathelement path="${dist}/data/lang"/>
+  </path>
+    
+  <!-- Dokumentation -->
+  
+  <target name="help" description="Zeigt die Hilfestellung an (fuehre dazu &quot;ant -e help&quot; aus)">
+      <echo>
+Die Langbeschreibung der Ziele dieses Projekts:
+- Auswertung der Konten eines Sparvereins
+- Eingabe der Daten in Form von CSV-Dateien
+- Ausgabe der Daten in Form zusammengefasster CSV-Dateien
+- Moeglichkeit zum Erstellen einer zugehoerigen Logdatei
+- Beschreibung der einzelnen Targets mit &quot;ant -projecthelp&quot;
+
+Das Projekt "accounting" zeigt verschiedene Schritte und
+Taetigkeiten, die bei der Durchfuehrung eines Projektes
+durchzufuehren sind.
+      </echo>
+  </target>
+  
+  <!-- Erstellen -->
+  
+  <target name="init" description="Initialisiert die Ordnerstruktur">
     <mkdir dir="build/classes"/>
     <mkdir dir="dist"/>
+    <mkdir dir="build/classes/package/de"/>
+    <mkdir dir="dist/data"/>
+  </target>
+  
+  <target name="test-set-language-links" depends="init" description="Ueberprueft, ob die Links zu den Lokalisierungsdateien noch nicht existieren">
+      <condition property="isNotALangDir">
+          <not>
+              <available file="./dist/data/lang" type="dir"/>
+          </not>
+      </condition>
+  </target>
+  
+  <target name="create-language-links" depends="test-set-language-links" if="isNotALangDir" description="Erstellt die Links zu den Lokalisierungsdateien">
+      <exec executable="ln" error="/dev/null" os="Linux">
+          <arg line="-sn"/>
+          <arg file="./src/data/lang"/>
+          <arg file="./dist/data/lang"/>
+      </exec>
   </target>
 
-  <target name="compile" depends="init">
-    <javac includeAntRuntime="false" srcdir="src" destdir="build/classes"/>
+  <target name="compile" depends="create-language-links" description="Kompliliert das komplette Java-Programm">
+    <javac classpathref="project.class.path" includeAntRuntime="false" srcdir="src"
+           destdir="build/classes" debug="true" debuglevel="lines,vars,source"/>
   </target>
 
-  <target name="archive" depends="compile">
+  <target name="archive" depends="compile" description="Erstellt das Projektarchiv">
     <jar destfile="dist/accounting.jar"
         basedir="build/classes"/>
   </target>
-
-  <target name="clean" depends="init">
-    <delete dir="build"/>
-    <delete dir="dist"/>
+    
+  <!-- Ausfuehren -->
+  
+  <target name="execute" depends="compile" description="Fuehrt das Programm ohne bereitgestellte Informationen aus">
+      <java classpathref="project.class.path" classpath="build/classes"
+            classname="application.accounting.Accounting"/>
   </target>
   
-  <target name="execute" depends="compile">
-      <java classpath="build/classes" classname="application.accounting.Accounting"/>
-  </target>
-  
-  <target name="execute-input" depends="compile">
+  <target name="execute-input" depends="compile" description="Fuehrt das Programm mit bereitgestellter Eingabe aus">
       <java classpath="build/classes" classname="application.accounting.Accounting"
             input="./accounting.in"/>
   </target>
   
-  <target name="execute-jar" depends="archive">
-      <java classpath="dist/accounting.jar" classname="application.accounting.Accounting"/>
+  <target name="execute-jar" depends="archive" description="Fuehrt das Programmarchiv aus">
+      <java classpathref="project.class.path" classpath="dist/accounting.jar"
+            classname="application.accounting.Accounting"/>
   </target>
+  
+  <target name="execute-argparser" depends="compile" description="Fuehrt den ArgParser aus">
+      <java classpathref="project.class.path"
+            classpath="build/classes" classname="application.accounting.ArgParser">
+          <arg line="--input-file ./src/data/test.csv
+                     -o ./src/data/test.csv.new
+                     -l ./src/data/test.csv.log 0,75"/>
+      </java>
+  </target>
+  
+  <target name="execute-params" depends="compile" description="Fuehrt das Programm mit Parametern und Eingabe aus">
+      <java classpathref="project.class.path"
+            classpath="build/classes" classname="application.accounting.Accounting">
+          <arg line="--input-file ./src/data/test.csv
+                     -o ./src/data/test.csv.new
+                     -l ./src/data/test.csv.log 0.75"/>
+      </java>
+  </target>
+  
+  <target name="execute-logging" description="Fuehrt das Programm mit einem bestimmten Logging-Level aus" depends="compile">
+      <echo file="./build/classes/accounting_logging.properties" append="false">
+        ############################################################
+        #  	Default Logging Configuration File
+        #
+        # You can use a different file by specifying a filename
+        # with the java.util.logging.config.file system property.  
+        # For example java -Djava.util.logging.config.file=myfile
+        ############################################################
 
+        ############################################################
+        #  	Global properties
+        ############################################################
+
+        # &quot;handlers&quot; specifies a comma separated list of log Handler 
+        # classes.  These handlers will be installed during VM startup.
+        # Note that these classes must be on the system classpath.
+        # By default we only configure a ConsoleHandler, which will only
+        # show messages at the INFO and above levels.
+        handlers= java.util.logging.ConsoleHandler
+
+        # To also add the FileHandler, use the following line instead.
+        #handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+
+        # Default global logging level.
+        # This specifies which kinds of events are logged across
+        # all loggers.  For any given facility this global level
+        # can be overriden by a facility specific level
+        # Note that the ConsoleHandler also has a separate level
+        # setting to limit messages printed to the console.
+        .level= ${level}
+
+        ############################################################
+        # Handler specific properties.
+        # Describes specific configuration info for Handlers.
+        ############################################################
+
+        # default file output is in user&apos;s home directory.
+        java.util.logging.FileHandler.pattern = %h/java%u.log
+        java.util.logging.FileHandler.limit = 50000
+        java.util.logging.FileHandler.count = 1
+        java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+
+        # Limit the message that are printed on the console to INFO and above.
+        java.util.logging.ConsoleHandler.level = ${level}
+        java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+
+        # Example to customize the SimpleFormatter output format 
+        # to print one-line log message like this:
+        #     &lt;level&gt;: &lt;log message&gt; [&lt;date/time&gt;]
+        #
+        # java.util.logging.SimpleFormatter.format=%4$s: %5$s [%1$tc]%n
+
+        ############################################################
+        # Facility specific properties.
+        # Provides extra control for each logger.
+        ############################################################
+
+        # For example, set the com.xyz.foo logger to only log SEVERE
+        # messages:
+        com.xyz.foo.level = SEVERE
+
+      </echo>
+      
+      <java classpathref="project.class.path" classpath="build/classes" classname="application.accounting.Accounting" input="accounting.in" fork="true">
+          <jvmarg value="-Djava.util.logging.config.file=./build/classes/accounting_logging.properties"/>
+      </java>
+  </target>
+  
+  <target name="execute-errors" depends="archive" description="Fuehrt das Programm mit allen Testfaellen aus">
+      <echo file="./build/classes/errors.sh" append="false">
+        #!/bin/bash
+
+        for I in {00..02}
+        do
+            sh execute_jar.sh -i ./src/data/test_err_$I.in 0.75 >./src/data/test_err_$I.out
+        done
+      </echo>
+      
+      <exec executable="bash">
+          <arg file="./build/classes/errors.sh"/>
+      </exec>
+      
+      <exec executable="rm" error="/dev/null" os="Linux">
+          <arg file="./build/classes/errors.sh"/>
+      </exec>
+  </target>
+  
+  <!-- Aufraeumen -->
+  
+  <target name="clean" depends="delete-language-links" description="Loescht die Ordnerstruktur">
+    <delete dir="build"/>
+    <delete dir="dist"/>
+  </target>
+  
+  <target name="test-remove-language-links" description="Ueberprueft, ob die Links zu den Lokalisierungsdateien existieren">
+      <condition property="isADir">
+          <available file="./dist/data/lang" type="dir"/>
+      </condition>
+  </target>
+  
+  <target name="delete-language-links" depends="test-remove-language-links" if="isADir" description="Loescht die Links zu den Lokalisierungsdateien">
+      <exec executable="rm" error="/dev/null" os="Linux">
+          <arg file="./dist/data/lang"/>
+      </exec>
+  </target>
+  
 </project>

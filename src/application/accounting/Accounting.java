@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 
 public class Accounting {
-    public String applicationVersion = "Id: Accounting.java, version c4951d2 of <COMMITTERDATEISO8601> by se110512"; 
+    public String applicationVersion = "Id: Accounting.java, version c4951d2 of <COMMITTERDATEISO8601> by se110512";
 
     /** wandelt einen Betrag im Stringformat in den entsprechenden Long um */
     public static long parseBetrag(String betr) {
@@ -42,10 +42,22 @@ public class Accounting {
     }
 
     public static void main(String args[]) throws IOException {
-        // Dateinamen und Zinssatz einlesen
-        Scanner sc = new Scanner(System.in);
-        String dateiname = sc.nextLine();
-        double zinssatz = sc.nextDouble();
+        // ArgParser
+        String dateiname, ausgabedateiname = "", log = "";
+        double zinssatz;
+        if (args.length == 0) {
+            // Dateinamen und Zinssatz einlesen
+            Scanner sc = new Scanner(System.in);
+            dateiname = sc.nextLine();
+            zinssatz = sc.nextDouble();
+            sc.close();
+        } else {
+            ArgParser ap = new ArgParser(args);
+            log = ap.getLogFilename();
+            dateiname = ap.getInputFilename();
+            ausgabedateiname = ap.getOutputFilename();
+            zinssatz = Double.parseDouble(ap.getNonOptions());
+        }
         
         // Daten einlesen
         Depositor.setzeZinsen(zinssatz);

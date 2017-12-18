@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 
 public class Accounting {
-    public String applicationVersion = "Id: <FILE>, version <COMMITHASHABBREVIATED> of <COMMITTERDATEISO08601> by <AUTHORNAME>";
+    public String applicationVersion = "Id: Accounting.java, version c4951d2 of <COMMITTERDATEISO8601> by se110512";
 
     /** wandelt einen Betrag im Stringformat in den entsprechenden Long um */
     public static long parseBetrag(String betr) {

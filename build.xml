@@ -10,6 +10,7 @@
   <path id="project.class.path">
     <pathelement path="${build}"/>
     <pathelement path="${dist}/data/lang"/>
+    <pathelement path="/home/se110512/lib/java/java-getopt/java-getopt-1.0.14.jar"/>
   </path>
     
   <!-- Dokumentation -->
@@ -86,7 +87,7 @@ durchzufuehren sind.
             classpath="build/classes" classname="application.accounting.ArgParser">
           <arg line="--input-file ./src/data/test.csv
                      -o ./src/data/test.csv.new
-                     -l ./src/data/test.csv.log 0,75"/>
+                     -l ./src/data/test.csv.log -r 0,75"/>
       </java>
   </target>
   
@@ -95,7 +96,8 @@ durchzufuehren sind.
             classpath="build/classes" classname="application.accounting.Accounting">
           <arg line="--input-file ./src/data/test.csv
                      -o ./src/data/test.csv.new
-                     -l ./src/data/test.csv.log 0.75"/>
+                     -l ./src/data/test.csv.log
+                     -r 0.75"/>
       </java>
   </target>
   

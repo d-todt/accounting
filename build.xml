@@ -10,6 +10,7 @@
   <path id="project.class.path">
     <pathelement path="${build}"/>
     <pathelement path="${dist}/data/lang"/>
+    <pathelement path="/home/se110512/lib/java/java-getopt/java-getopt-1.0.14.jar"/>
   </path>
     
   <!-- Dokumentation -->
@@ -86,7 +87,7 @@ durchzufuehren sind.
             classpath="build/classes" classname="application.accounting.ArgParser">
           <arg line="--input-file ./src/data/test.csv
                      -o ./src/data/test.csv.new
-                     -l ./src/data/test.csv.log 0,75"/>
+                     -l ./src/data/test.csv.log -r 0,75"/>
       </java>
   </target>
   
@@ -95,7 +96,8 @@ durchzufuehren sind.
             classpath="build/classes" classname="application.accounting.Accounting">
           <arg line="--input-file ./src/data/test.csv
                      -o ./src/data/test.csv.new
-                     -l ./src/data/test.csv.log 0.75"/>
+                     -l ./src/data/test.csv.log
+                     -r 0.05"/>
       </java>
   </target>
   
@@ -174,7 +176,7 @@ durchzufuehren sind.
 
         for I in {00..02}
         do
-            sh execute_jar.sh -i ./src/data/test_err_$I.in 0.75 >./src/data/test_err_$I.out
+            sh execute_jar.sh -i ./src/data/test_err_$I.in -r 0.75 >./src/data/test_err_$I.out
         done
       </echo>
       
@@ -205,5 +207,4 @@ durchzufuehren sind.
           <arg file="./dist/data/lang"/>
       </exec>
   </target>
-  
 </project>

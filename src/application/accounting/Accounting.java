@@ -15,8 +15,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.lang.NumberFormatException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 public class Accounting {
+    public String applicationVersion = "Id: Accounting.java, version c4951d2 of 2017-12-04 16:27:41 +0100 by se110512";
     /** Logger */
     private static final Logger logger = Logger.getLogger(Accounting.class.getName());
     
@@ -68,12 +71,18 @@ public class Accounting {
                 } else if (feld[3].length() == 0) {
                     beende("Fehlende Angabe bei " + feld[1] + " " + feld[2]);
                 }
-                Depositor tmp = new Depositor(feld[0], feld[1], feld[2], parseBetrag(feld[3]), new ArrayList<>());
+                Depositor tmp = null;
+                try {
+                    tmp = new Depositor(feld[0], feld[1], feld[2], new BigDecimal(feld[3].replace(",",".")), new ArrayList<>());
+                } catch (Exception e) {
+                    beende("Illegaler Betrag: " + feld[3]);
+                }
+                
                 for (int i = 4; i < feld.length; i += 2) {
                     if (feld[i].length() == 0 || feld[i+1].length() == 0) {
                         beende("Fehlende Angabe bei " + feld[1] + " " + feld[2]);
                     }
-                    tmp.einzahlen(Integer.parseInt(feld[i]), parseBetrag(feld[i+1]));
+                    tmp.einzahlen(Integer.parseInt(feld[i]), new BigDecimal(feld[i+1].replace(",",".")));
                 }
                 erg.add(tmp);
             }
@@ -98,17 +107,13 @@ public class Accounting {
         }
     
         // ArgParser
-        String dateiname = "", ausgabedateiname = "", log = "";
-        double zinssatz = 0;
+        String dateiname, ausgabedateiname = "", log = "";
+        BigDecimal zinssatz = null;
         if (args.length == 0) {
             // Dateinamen und Zinssatz einlesen
             Scanner sc = new Scanner(System.in);
             dateiname = sc.nextLine();
-            try {
-                zinssatz = sc.nextDouble();
-            } catch (InputMismatchException e) {
-                beende("Fehlerhafter Zinssatz");
-            }
+            zinssatz = new BigDecimal(sc.nextLine());
             sc.close();
         } else {
             ArgParser ap = new ArgParser(args);
@@ -116,9 +121,9 @@ public class Accounting {
             dateiname = ap.getInputFilename();
             ausgabedateiname = ap.getOutputFilename();
             try {
-                zinssatz = Double.parseDouble(ap.getNonOptions());
-            } catch (NumberFormatException e) {
-                beende("Fehlerhafter Zinssatz");
+                zinssatz = new BigDecimal(ap.getNonOptions());
+            } catch (Exception e) {
+                beende("Illegaler Zinssatz: " + ap.getNonOptions());
             }
         }
         
@@ -141,8 +146,8 @@ public class Accounting {
             } catch (IOException e) {
                 logger.severe("Datei kann nicht geschrieben werden");
                 e.printStackTrace();
-            }
-        }
+            }        
+    }
         
         // Daten einlesen
         if (ausgabedateiname != null && ausgabedateiname.length() > 0) {
@@ -152,8 +157,9 @@ public class Accounting {
         Depositor.setzeZinsen(zinssatz);
         logger.info("Setze Zinssatz auf " + zinssatz);
         List<Depositor> leute = liesDatei(dateiname);
+        
         for (Depositor mensch : leute) {
-            System.out.printf("%s;%s;%s;%s\n", mensch.getNummer(), mensch.getNachname(), mensch.getVorname(), (mensch.berechneGuthaben()+"").replace(".", ","));
+            System.out.printf("%s;%s;%s;%s\n", mensch.getNummer(), mensch.getNachname(), mensch.getVorname(), Math.round(mensch.berechneGuthaben().doubleValue()*100)/100.);
         }
     }
 }

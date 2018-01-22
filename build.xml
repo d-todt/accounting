@@ -97,7 +97,7 @@ durchzufuehren sind.
           <arg line="--input-file ./src/data/test.csv
                      -o ./src/data/test.csv.new
                      -l ./src/data/test.csv.log
-                     -r 0.75"/>
+                     -r 0.05"/>
       </java>
   </target>
   

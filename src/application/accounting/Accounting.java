@@ -2,14 +2,11 @@ package application.accounting;
 
 import java.util.*;
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 public class Accounting {
-    public String applicationVersion = "Id: Accounting.java, version c4951d2 of <COMMITTERDATEISO8601> by se110512";
-
-    /** wandelt einen Betrag im Stringformat in den entsprechenden Long um */
-    public static long parseBetrag(String betr) {
-        return (long) (Double.parseDouble(betr.replace(",", "."))*100*1000);
-    }
+    public String applicationVersion = "Id: Accounting.java, version c4951d2 of 2017-12-04 16:27:41 +0100 by se110512";
 
     /** liest eine CSV-Datei ein und gibt ihren Inhalt als Depositor-List zurueck */
     public static List<Depositor> liesDatei(String dateiname) throws IOException {
@@ -27,9 +24,9 @@ public class Accounting {
                 }
                 
                 String feld[] = zeile.split(";");
-                Depositor tmp = new Depositor(feld[0], feld[1], feld[2], parseBetrag(feld[3]), new ArrayList<>());
+                Depositor tmp = new Depositor(feld[0], feld[1], feld[2], new BigDecimal(feld[3].replace(",",".")), new ArrayList<>());
                 for (int i = 4; i < feld.length; i += 2) {
-                    tmp.einzahlen(Integer.parseInt(feld[i]), parseBetrag(feld[i+1]));
+                    tmp.einzahlen(Integer.parseInt(feld[i]), new BigDecimal(feld[i+1].replace(",",".")));
                 }
                 erg.add(tmp);
             }
@@ -44,19 +41,19 @@ public class Accounting {
     public static void main(String args[]) throws IOException {
         // ArgParser
         String dateiname, ausgabedateiname = "", log = "";
-        double zinssatz;
+        BigDecimal zinssatz;
         if (args.length == 0) {
             // Dateinamen und Zinssatz einlesen
             Scanner sc = new Scanner(System.in);
             dateiname = sc.nextLine();
-            zinssatz = sc.nextDouble();
+            zinssatz = new BigDecimal(sc.nextLine());
             sc.close();
         } else {
             ArgParser ap = new ArgParser(args);
             log = ap.getLogFilename();
             dateiname = ap.getInputFilename();
             ausgabedateiname = ap.getOutputFilename();
-            zinssatz = Double.parseDouble(ap.getNonOptions());
+            zinssatz = new BigDecimal(ap.getNonOptions());
         }
         
         // Daten einlesen
@@ -64,7 +61,7 @@ public class Accounting {
         List<Depositor> leute = liesDatei(dateiname);
         
         for (Depositor mensch : leute) {
-            System.out.printf("%s;%s;%s;%s\n", mensch.getNummer(), mensch.getNachname(), mensch.getVorname(), (mensch.berechneGuthaben()+"").replace(".", ","));
+            System.out.printf("%s;%s;%s;%s\n", mensch.getNummer(), mensch.getNachname(), mensch.getVorname(), Math.round(mensch.berechneGuthaben().doubleValue()*100)/100.);
         }
     }
 }

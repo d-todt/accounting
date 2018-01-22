@@ -1,15 +1,17 @@
 package application.accounting;
 
+import java.math.BigDecimal;
+
 public class AccountingEntry {
     private int tag;
-    private long betrag;
+    private BigDecimal betrag;
     
-    public AccountingEntry(int tag, long betrag) {
+    public AccountingEntry(int tag, BigDecimal betrag) {
         this.tag = tag;
         this.betrag = betrag;
     }
     
     public int getTag() { return tag; }
     
-    public long getBetrag() { return betrag; }
+    public BigDecimal getBetrag() { return betrag; }
 }
